@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "fetch-jobs": "tsx scripts/fetch-jobs.ts"
+    "fetch-jobs": "tsx scripts/fetch-jobs.ts",
+    "fetch-jobs:log": "bash scripts/fetch-logged.sh"
   },
   "dependencies": {
     "next": "15.5.28",
