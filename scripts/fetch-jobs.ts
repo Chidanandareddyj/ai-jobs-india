@@ -64,8 +64,8 @@ async function main() {
     if (!STRICT_ENG.test(r.title) || JUNK.test(r.title)) return false;
     if (!(k.ai || DEVTOOLS.test(r.title + " " + r.desc.slice(0, 3000)))) return false;
     if (!["intern", "fresher", "junior"].includes(k.level) && !k.ai) return false; // non-entry aggregator roles must be AI roles
-    const norm = (x: string) => x.toLowerCase().replace(/\b(gmbh|inc|ltd|llc|pvt|private|limited)\b/g, "").replace(/[^a-z0-9]/g, ""); const key = norm(company + r.title);
-    if (jobs.some((j) => norm(j.company + j.title) === key)) return false;
+    const norm = (x: string) => x.toLowerCase().replace(/\b(gmbh|inc|ltd|llc|pvt|private|limited)\b/g, "").replace(/[^a-z0-9]/g, ""); const key = norm(company) + "|" + norm(r.title);
+    if (jobs.some((j) => norm(j.company) + "|" + norm(j.title) === key)) return false;
     jobs.push({ id: `${source}-${r.id}`, slug: `${slugify(company)}-${slugify(r.title)}-${String(r.id).replace(/\W/g, "").slice(-8)}`, company, companySlug: slugify(company), source, title: r.title, location: r.location,
       url: r.url, applyUrl: r.apply, postedAt: r.posted, description: r.desc.slice(0, 20000), level: k.level, stack: k.stack, ai: k.ai, indiaReason: k.indiaReason, fetchedAt: now });
     return true;
