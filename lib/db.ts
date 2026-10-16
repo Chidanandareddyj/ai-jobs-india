@@ -15,7 +15,8 @@ export const jobs: JobRepo = { all: () => load().jobs, bySlug: (s) => load().job
 
 // Subscribers: Supabase when configured (required on Vercel), local JSON file otherwise (dev).
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY; // server-only: never expose to the client
+// Prefer the service role key (server-only). Fallback: anon key, restricted by RLS to insert-only on subscribers.
+const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_ANON_KEY;
 
 const fileSubscribers: SubscriberRepo = {
   async add(email) {

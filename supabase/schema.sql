@@ -6,3 +6,7 @@ create table if not exists public.subscribers (
 );
 -- Lock the table down: only the service role (used server-side by /api/subscribe) can read/write.
 alter table public.subscribers enable row level security;
+-- Anon key fallback: allow insert of email only, no select/update/delete.
+revoke all on public.subscribers from anon, authenticated;
+grant insert (email) on public.subscribers to anon;
+create policy "anon insert only" on public.subscribers for insert to anon with check (true);
