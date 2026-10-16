@@ -7,7 +7,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<Rec
       <aside className="space-y-5 lg:space-y-8 lg:sticky lg:top-6 lg:self-start">
         <div className="space-y-4">
           <h1 className="text-[30px] font-normal leading-[1.1] tracking-[-0.02em]">Remote AI &amp; dev-tools jobs, <span className="font-serif text-[34px] text-mute">open to India.</span></h1>
-          <p className="text-mute">Engineering roles at <span className="text-ink">{cos} AI and developer-tools companies</span> that are remote and explicitly hire from India, APAC or anywhere.</p>
+          <p className="text-mute">Engineering roles at <span className="text-ink">{cos} AI, dev-tools and startup companies</span> that are remote and explicitly hire from India, APAC or anywhere.</p>
           <p className="text-mute">Every listing is checked against its location rules. US-only and EU-only roles never make it here.</p>
         </div>
         <details className="rule border-y py-3 lg:hidden"><summary className="label flex cursor-pointer list-none justify-between"><span>Filters{sp.level || sp.stack || sp.company || sp.q ? " · active" : ""}</span><span>+</span></summary><div className="pt-4"><Filters sp={sp} /></div></details>

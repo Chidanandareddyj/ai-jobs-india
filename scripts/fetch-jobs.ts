@@ -52,12 +52,13 @@ async function main() {
   // ---- Aggregators: no company allowlist, so require AI or dev-tools signal ----
   const DEVTOOLS = /\b(developer tools?|devtools|api|sdk|infrastructure|platform engineer|devops|sre|cloud|kubernetes|database|open[- ]source|llm|ai|machine learning|ml|agents?|data engineer)\b/i;
   const STRICT_ENG = /\b(engineer|engineering|developer|sde|swe|programmer|(data|ml|research|applied) scientist|devops|sre|full[- ]?stack|back[- ]?end|front[- ]?end)\b/i;
-  const JUNK = /\b(rater|translator|evaluator|transcriber|tutor|annotat\w*|participant|trainer|linguist\w*|talent hub|expression of interest|volunteer|unpaid|support engineer|systems support|network engineer\w*|sales engineer|product manager|recruit\w*|future position)\b/i;
+  const JUNK = /\b(salesforce|cpq|sap|servicenow|rater|translator|evaluator|transcriber|tutor|annotat\w*|participant|trainer|linguist\w*|talent hub|expression of interest|volunteer|unpaid|support engineer|systems support|network engineer\w*|sales engineer|product manager|recruit\w*|future position)\b/i;
   const addAgg = (source: string, company: string, r: Raw, hint?: "intern" | "entry") => {
     const k = classify(r.title, r.location, r.desc, r.remote, hint);
     if (!(k.remote && k.indiaEligible && k.engineering)) return false;
     if (!STRICT_ENG.test(r.title) || JUNK.test(r.title)) return false;
     if (!(k.ai || DEVTOOLS.test(r.title + " " + r.desc.slice(0, 3000)))) return false;
+    if (!["intern", "fresher", "junior"].includes(k.level) && !k.ai) return false; // non-entry aggregator roles must be AI roles
     const norm = (x: string) => x.toLowerCase().replace(/\b(gmbh|inc|ltd|llc|pvt|private|limited)\b/g, "").replace(/[^a-z0-9]/g, ""); const key = norm(company + r.title);
     if (jobs.some((j) => norm(j.company + j.title) === key)) return false;
     jobs.push({ id: `${source}-${r.id}`, slug: `${slugify(company)}-${slugify(r.title)}-${String(r.id).replace(/\W/g, "").slice(-8)}`, company, companySlug: slugify(company), source, title: r.title, location: r.location,
