@@ -51,9 +51,14 @@ async function main() {
     } catch (e: any) { stats[c.name] = { total: 0, kept: 0, error: e.message }; console.log(`${c.source}/${c.slug}: ERROR ${e.message}`); } } }));
   // ---- Aggregators: no company allowlist, so require AI or dev-tools signal ----
   const DEVTOOLS = /\b(developer tools?|devtools|api|sdk|infrastructure|platform engineer|devops|sre|cloud|kubernetes|database|open[- ]source|llm|ai|machine learning|ml|agents?|data engineer)\b/i;
+  // Staffing / consultancy / contract-agency blocklist
+  const STAFFING_CO = /(pradeepit|xperteez|talent sam|ngo consulting|beyondsoft|marktine|staffing|recruit(ing|ment)|consult(ing|ancy|ants)|outsourc|talent (solutions|journey)|manpower|placement|\bhr (plus|solutions|services)\b|jobs for humanity|internshiphub|weekday)/i;
+  const STAFFING_TEXT = /(staffing (firm|agency|company)|consulting services|on behalf of (our|a) client|our client is|\bc2c\b|corp[- ]to[- ]corp|\bbench\b|w2 only|third[- ]party payroll|contract[- ]to[- ]hire via)/i;
+  let blocked = 0;
   const STRICT_ENG = /\b(engineer|engineering|developer|sde|swe|programmer|(data|ml|research|applied) scientist|devops|sre|full[- ]?stack|back[- ]?end|front[- ]?end)\b/i;
   const JUNK = /\b(salesforce|cpq|sap|servicenow|rater|translator|evaluator|transcriber|tutor|annotat\w*|participant|trainer|linguist\w*|talent hub|expression of interest|volunteer|unpaid|support engineer|systems support|network engineer\w*|sales engineer|product manager|recruit\w*|future position)\b/i;
   const addAgg = (source: string, company: string, r: Raw, hint?: "intern" | "entry") => {
+    if (STAFFING_CO.test(company) || STAFFING_TEXT.test(r.title + " " + r.desc.slice(0, 5000))) { blocked++; return false; }
     const k = classify(r.title, r.location, r.desc, r.remote, hint);
     if (!(k.remote && k.indiaEligible && k.engineering)) return false;
     if (!STRICT_ENG.test(r.title) || JUNK.test(r.title)) return false;
@@ -107,6 +112,7 @@ async function main() {
         addAgg("hn", parts[0].slice(0, 60), { id: String(c.id), title, location: locs, remote: true, desc: txt, url: `https://news.ycombinator.com/item?id=${c.id}`, apply: `https://news.ycombinator.com/item?id=${c.id}`, posted: c.created_at }); } }
     return n; });
 
+  console.log(`staffing/consultancy blocklist removed: ${blocked}`);
   jobs.sort((a, b) => (b.postedAt || "").localeCompare(a.postedAt || ""));
   mkdirSync("data", { recursive: true });
   writeFileSync("data/jobs.json", JSON.stringify({ fetchedAt: now, companiesScanned: COMPANIES.length, stats, jobs }, null, 0));
