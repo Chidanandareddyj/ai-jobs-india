@@ -13,7 +13,11 @@ const load = () => (cache ??= JSON.parse(readFileSync(path.join(DATA, "jobs.json
 
 export const jobs: JobRepo = { all: () => load().jobs, bySlug: (s) => load().jobs.find((j: Job) => j.slug === s), fetchedAt: () => load().fetchedAt };
 
-export const subscribers: SubscriberRepo = {
+// Subscribers: Supabase when configured (required on Vercel), local JSON file otherwise (dev).
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY; // server-only: never expose to the client
+
+const fileSubscribers: SubscriberRepo = {
   async add(email) {
     const f = path.join(DATA, "subscribers.json");
     const list: { email: string; at: string }[] = existsSync(f) ? JSON.parse(readFileSync(f, "utf8")) : [];
@@ -22,7 +26,20 @@ export const subscribers: SubscriberRepo = {
   },
 };
 
-export const SITE = { name: "AI Jobs India", url: process.env.SITE_URL || "http://localhost:3100", tagline: "Remote AI, agents & dev-tools engineering jobs that hire from India" };
+const supabaseSubscribers: SubscriberRepo = {
+  async add(email) {
+    const { createClient } = await import("@supabase/supabase-js");
+    const sb = createClient(SUPABASE_URL!, SUPABASE_KEY!, { auth: { persistSession: false } });
+    const { error } = await sb.from("subscribers").insert({ email });
+    if (!error) return true;
+    if (error.code === "23505") return false; // unique violation: already subscribed
+    throw new Error(`Supabase insert failed: ${error.message}`);
+  },
+};
+
+export const subscribers: SubscriberRepo = SUPABASE_URL && SUPABASE_KEY ? supabaseSubscribers : fileSubscribers;
+
+export const SITE = { name: "AI Jobs India", url: (process.env.SITE_URL || (process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` : "http://localhost:3100")).replace(/\/$/, ""), tagline: "Remote AI, agents & dev-tools engineering jobs that hire from India" };
 export const isLevel = (s: string): s is Level => (LEVELS as string[]).includes(s);
 export function facets() {
   const all = jobs.all(); const count = (k: (j: Job) => string[]) => { const m = new Map<string, number>(); all.forEach((j) => k(j).forEach((v) => m.set(v, (m.get(v) || 0) + 1))); return [...m].sort((a, b) => b[1] - a[1]); };

@@ -42,3 +42,4 @@ next-env.d.ts
 
 # app data
 data/subscribers.json
+!.env.example
