@@ -1,0 +1,17 @@
+@import "tailwindcss";
+@theme {
+  --color-bg: #0b0b0b; --color-raised: #121212; --color-line: #242424; --color-ink: #ececec; --color-mute: #8b8b8b; --color-faint: #5a5a5a; --color-amber: #f2a516;
+  --font-sans: var(--font-inter-tight), system-ui, sans-serif; --font-serif: var(--font-instrument), Georgia, serif; --font-mono: var(--font-jetbrains), ui-monospace, monospace;
+}
+html { background: var(--color-bg); color: var(--color-ink); }
+body { font-feature-settings: "ss01", "cv11"; }
+::selection { background: var(--color-amber); color: #000; }
+.label { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--color-faint); }
+.rule { border-color: var(--color-line); border-style: dashed; }
+.field { background: transparent; border: 1px solid var(--color-line); border-radius: 2px; height: 30px; padding: 0 8px; font-size: 13px; color: var(--color-ink); width: 100%; }
+.field:focus { outline: none; border-color: var(--color-amber); }
+select.field option { background: #121212; }
+.btn { display: inline-flex; align-items: center; gap: 6px; height: 28px; padding: 0 10px; border: 1px solid var(--color-line); border-radius: 3px; font-size: 12px; color: var(--color-ink); white-space: nowrap; }
+.btn:hover { border-color: #3a3a3a; background: var(--color-raised); }
+.btn-primary { background: var(--color-ink); color: #0b0b0b; border-color: var(--color-ink); }
+.btn-primary:hover { background: var(--color-amber); border-color: var(--color-amber); color: #000; }
