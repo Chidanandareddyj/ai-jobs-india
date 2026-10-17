@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Inter_Tight, Instrument_Serif, JetBrains_Mono } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 import { SITE } from "@/lib/db";
-const sans = Inter_Tight({ subsets: ["latin"], weight: ["400", "500", "600"], variable: "--font-inter-tight" });
-const serif = Instrument_Serif({ subsets: ["latin"], weight: "400", style: "italic", variable: "--font-instrument" });
-const mono = JetBrains_Mono({ subsets: ["latin"], weight: ["400", "500"], variable: "--font-jetbrains" });
+const sans = localFont({ src: [{ path: "./fonts/inter-tight-latin-400-normal.woff2", weight: "400", style: "normal" }, { path: "./fonts/inter-tight-latin-500-normal.woff2", weight: "500", style: "normal" }, { path: "./fonts/inter-tight-latin-600-normal.woff2", weight: "600", style: "normal" }], variable: "--font-inter-tight", display: "swap" });
+const serif = localFont({ src: "./fonts/instrument-serif-latin-400-italic.woff2", weight: "400", style: "italic", variable: "--font-instrument", display: "swap" });
+const mono = localFont({ src: [{ path: "./fonts/jetbrains-mono-latin-400-normal.woff2", weight: "400", style: "normal" }, { path: "./fonts/jetbrains-mono-latin-500-normal.woff2", weight: "500", style: "normal" }], variable: "--font-jetbrains", display: "swap" });
 export const metadata: Metadata = {
   metadataBase: new URL(SITE.url), title: { default: `${SITE.name} — ${SITE.tagline}`, template: `%s | ${SITE.name}` },
   description: "Curated remote AI, LLM, agents and developer-tools engineering jobs open to candidates in India. Fresher and junior filters.",
