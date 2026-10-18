@@ -53,7 +53,7 @@ async function main() {
   const DEVTOOLS = /\b(developer tools?|devtools|api|sdk|infrastructure|platform engineer|devops|sre|cloud|kubernetes|database|open[- ]source|llm|ai|machine learning|ml|agents?|data engineer)\b/i;
   // Staffing / consultancy / contract-agency blocklist
   const STAFFING_CO = /(pradeepit|cloud counselage|xperteez|productiv team|clanx|talent sam|ngo consulting|beyondsoft|marktine|staffing|recruit(ing|ment)|consult(ing|ancy|ants)|outsourc|talent (solutions|journey)|manpower|placement|\bhr (plus|solutions|services)\b|jobs for humanity|internshiphub|weekday)/i;
-  const STAFFING_TEXT = /(staffing (firm|agency|company)|consulting services|on behalf of (our|a) client|our client is|\bc2c\b|corp[- ]to[- ]corp|\bbench\b|w2 only|third[- ]party payroll|contract[- ]to[- ]hire via)/i;
+  const STAFFING_TEXT = /(unpaid (internship|position|role)|internship is unpaid|staffing (firm|agency|company)|consulting services|on behalf of (our|a) client|our client is|\bc2c\b|corp[- ]to[- ]corp|\bbench\b|w2 only|third[- ]party payroll|contract[- ]to[- ]hire via)/i;
   let blocked = 0;
   const STRICT_ENG = /\b(engineer|engineering|developer|sde|swe|programmer|(data|ml|research|applied) scientist|devops|sre|full[- ]?stack|back[- ]?end|front[- ]?end)\b/i;
   const JUNK = /\b(salesforce|cpq|sap|servicenow|rater|translator|evaluator|transcriber|tutor|annotat\w*|participant|trainer|linguist\w*|talent hub|expression of interest|volunteer|unpaid|support engineer|systems support|network engineer\w*|sales engineer|product manager|recruit\w*|future position)\b/i;
