@@ -8,6 +8,9 @@ const REGION_ONLY = /\b(us|usa|u\.s\.|united states|canada|north america|america
 const DESC_WORLD = /(work from anywhere|anywhere in the world|fully remote,? (worldwide|globally)|hire (globally|worldwide|from anywhere)|remote[- ]first.{0,40}(worldwide|any country)|open to candidates (globally|worldwide))/i;
 const DESC_US_ONLY = /(must (be|reside) (located |based )?in the (us|u\.s\.|united states)|us[- ]only|authorized to work in the (us|united states)|within the (us|united states)|us time ?zones? only)/i;
 
+const DESC_REGION_ONLY = /(available in the (emea|eu|europe|americas|us|north america|latam|uk) region only|(open|available) (only )?(to candidates )?(in|to) (the )?(emea|eu|europe|americas|us|north america|latam|uk)( region)? only)/i;
+const DESC_SENIOR_EXP = /\b([4-9]|1\d)\+\s*(years|yrs)\s*(of\s*)?(production|professional|industry|relevant|hands-on|work|experience)/i;
+
 export const ENG_TITLE = /\b(engineer|engineering|developer|programmer|scientist|sre|devops|ml|ai|machine learning|research(er)?|architect|sdet|full[- ]?stack|back[- ]?end|front[- ]?end|infrastructure|platform|security engineer|data engineer|forward deployed|solutions engineer|developer advocate|devrel|intern)\b/i;
 const NON_ENG = /\b(recruit|sales|account executive|marketing|legal|counsel|finance|accountant|hr|people partner|office|executive assistant|designer|customer success manager|payroll|tax|paralegal|business development|director|vp|vice president|head of)\b/i;
 const AI = /\b(ai|a\.i\.|llm|llms|machine learning|ml|deep learning|nlp|genai|generative|agent|agents|agentic|rag|inference|model training|pytorch|tensorflow|transformers?|computer vision|evals?|embeddings?|fine[- ]tun)/i;
@@ -32,6 +35,7 @@ export function classify(title: string, location: string, desc: string, remoteFl
   else if (loc.replace(/remote|[\s,·|()\-\/]|anywhere|fully|100%/gi, "") === "" && DESC_WORLD.test(desc) && !DESC_US_ONLY.test(desc)) { indiaEligible = true; indiaReason = "description says work from anywhere"; }
   if (indiaEligible && DESC_US_ONLY.test(desc) && !INDIA.test(loc)) { indiaEligible = false; indiaReason = "description restricts to US"; }
 
+  if (indiaEligible && DESC_REGION_ONLY.test(desc)) { indiaEligible = false; indiaReason = "description restricts region"; }
   if (indiaEligible && /\b(amer|americas|emea|us|usa|u\.s\.|north america|europe|eu|latam|uk)\b/i.test(title) && !/\b(apac|asia|india|global)\b/i.test(title)) { indiaEligible = false; indiaReason = "title restricts region"; }
   if (indiaEligible && !INDIA.test(loc + " " + title) && /\b(singapore|australia|japan|korea|china|indonesia|philippines|vietnam|new zealand|sweden|germany|brazil|canada|mexico)\b/i.test(title)) { indiaEligible = false; indiaReason = "title names another country"; }
   const t = title.toLowerCase();
@@ -43,6 +47,7 @@ export function classify(title: string, location: string, desc: string, remoteFl
   else if (/\b(0|1)\s*(-|–|to)\s*(1|2)\+?\s*years?\b/i.test(desc) || /\b(no (prior )?experience required|recent graduates?|new graduates?|freshers? (are )?welcome)\b/i.test(desc)) level = "junior";
   else if (seniorityHint === "entry") level = "junior";
   else if (seniorityHint === "intern") level = "intern";
+  if (level !== "mid" && level !== "senior" && DESC_SENIOR_EXP.test(desc)) level = "mid"; // e.g. "intern" titles asking for 4+ years
 
   const hay = title + " " + desc.slice(0, 6000);
   const stack = STACK.filter(([, r]) => r.test(hay)).map(([k]) => k);
