@@ -1,7 +1,10 @@
 name: Fetch jobs
 on:
   schedule:
-    - cron: "30 2 * * *" # 02:30 UTC = 08:00 IST
+    # GitHub drops/delays top-of-hour schedules (Oct 17-20 runs landed 4-6h late or not at all).
+    # Two off-peak minutes: 21:17 UTC (02:47 IST) primary, 01:43 UTC (07:13 IST) backup.
+    - cron: "17 21 * * *"
+    - cron: "43 1 * * *"
   workflow_dispatch:
 permissions:
   contents: write
