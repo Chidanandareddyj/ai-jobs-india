@@ -9,6 +9,8 @@ const DESC_WORLD = /(work from anywhere|anywhere in the world|fully remote,? (wo
 const DESC_US_ONLY = /(must (be|reside) (located |based )?in the (us|u\.s\.|united states)|us[- ]only|authorized to work in the (us|united states)|within the (us|united states)|us time ?zones? only)/i;
 
 const DESC_REGION_ONLY = /(available in the (emea|eu|europe|americas|us|north america|latam|uk) region only|(open|available) (only )?(to candidates )?(in|to) (the )?(emea|eu|europe|americas|us|north america|latam|uk)( region)? only)/i;
+// WWR feeds tag big-company posts "Anywhere in the World" but put the real job location in "Headquarters:", e.g. "Remote - United States", "Portugal - Remote".
+const WWR_HQ_REMOTE = /^\s*Headquarters:\s*([^\n]*)/i;
 const DESC_SENIOR_EXP = /\b([4-9]|1\d)\+\s*(years|yrs)\s*(of\s*)?(production|professional|industry|relevant|hands-on|work|experience)/i;
 
 export const ENG_TITLE = /\b(engineer|engineering|developer|programmer|scientist|sre|devops|ml|ai|machine learning|research(er)?|architect|sdet|full[- ]?stack|back[- ]?end|front[- ]?end|infrastructure|platform|security engineer|data engineer|forward deployed|solutions engineer|developer advocate|devrel|intern)\b/i;
@@ -35,6 +37,8 @@ export function classify(title: string, location: string, desc: string, remoteFl
   else if (loc.replace(/remote|[\s,·|()\-\/]|anywhere|fully|100%/gi, "") === "" && DESC_WORLD.test(desc) && !DESC_US_ONLY.test(desc)) { indiaEligible = true; indiaReason = "description says work from anywhere"; }
   if (indiaEligible && DESC_US_ONLY.test(desc) && !INDIA.test(loc)) { indiaEligible = false; indiaReason = "description restricts to US"; }
 
+  const hq = desc.match(WWR_HQ_REMOTE)?.[1] ?? "";
+  if (indiaEligible && /remote/i.test(hq) && hq.replace(/remote|[\s,·|()\-\/]/gi, "") !== "" && !/\b(india|apac|asia|anywhere|worldwide|global|world)\b/i.test(hq)) { indiaEligible = false; indiaReason = "listing says remote in another country"; }
   if (indiaEligible && DESC_REGION_ONLY.test(desc)) { indiaEligible = false; indiaReason = "description restricts region"; }
   if (indiaEligible && /\b(amer|americas|emea|us|usa|u\.s\.|north america|europe|eu|latam|uk)\b/i.test(title) && !/\b(apac|asia|india|global)\b/i.test(title)) { indiaEligible = false; indiaReason = "title restricts region"; }
   if (indiaEligible && !INDIA.test(loc + " " + title) && /\b(singapore|australia|japan|korea|china|indonesia|philippines|vietnam|new zealand|sweden|germany|brazil|canada|mexico)\b/i.test(title)) { indiaEligible = false; indiaReason = "title names another country"; }
