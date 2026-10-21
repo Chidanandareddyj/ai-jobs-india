@@ -102,9 +102,9 @@ async function main() {
   await agg("hn", async () => { let n = 0;
     const s = await get("https://hn.algolia.com/api/v1/search_by_date?tags=story,author_whoishiring&query=%22who%20is%20hiring%22&hitsPerPage=2");
     for (const st of s.hits) { const t = await get(`https://hn.algolia.com/api/v1/items/${st.objectID}`);
-      for (const c of t.children || []) { if (!c.text) continue; n++; const txt = strip(c.text); const first = txt.split("\n")[0];
+      for (const c of t.children || []) { if (!c.text) continue; n++; const txt = strip(c.text.replace(/<p>/gi, "\n<p>")); const first = txt.split("\n")[0];
         if (!/\bremote\b/i.test(first)) continue; const parts = first.split("|").map((x) => x.trim()); if (parts.length < 3) continue;
-        const roles = parts.find((p, i) => i > 0 && /engineer|developer|scientist|intern/i.test(p)) || ""; if (!roles) continue;
+        const roles = parts.find((p, i) => i > 0 && /engineer|developer|scientist|intern|\bmts\b|member of technical staff|\bml\b|\bsre\b|devops/i.test(p)) || ""; if (!roles) continue;
         const locs = parts.filter((p) => p.length < 70 && /remote|onsite|hybrid|india|global|worldwide|anywhere|apac/i.test(p)).join(" · ");
         if (!/\bremote\b/i.test(locs) || !/india|global|worldwide|anywhere|apac/i.test(locs) || /onsite|hybrid/i.test(locs) && !/remote/i.test(locs)) continue;
         const titleLevel = /\binterns?\b|internship/i.test(first) ? "Intern" : /new grad|graduate/i.test(first) ? "New Grad" : /junior|entry/i.test(first) ? "Junior" : "";
