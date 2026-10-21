@@ -107,7 +107,8 @@ async function main() {
         const roles = parts.find((p, i) => i > 0 && /engineer|developer|scientist|intern|\bmts\b|member of technical staff|\bml\b|\bsre\b|devops/i.test(p)) || ""; if (!roles) continue;
         const locs = parts.filter((p) => p.length < 70 && /remote|onsite|hybrid|india|global|worldwide|anywhere|apac/i.test(p)).join(" · ");
         if (!/\bremote\b/i.test(locs) || !/india|global|worldwide|anywhere|apac/i.test(locs) || /onsite|hybrid/i.test(locs) && !/remote/i.test(locs)) continue;
-        const titleLevel = /\binterns?\b|internship/i.test(first) ? "Intern" : /new grad|graduate/i.test(first) ? "New Grad" : /junior|entry/i.test(first) ? "Junior" : "";
+        const head = txt.slice(0, 400); // level words often sit in the first paragraph, e.g. "One junior ML engineer"
+        const titleLevel = /\binterns?\b|internship/i.test(head) ? "Intern" : /new grad|graduate/i.test(head) ? "New Grad" : /junior|entry[- ]level/i.test(head) ? "Junior" : "";
         const title = (titleLevel && !new RegExp(titleLevel, "i").test(roles) ? titleLevel + " " : "") + roles.slice(0, 90);
         addAgg("hn", parts[0].slice(0, 60), { id: String(c.id), title, location: locs, remote: true, desc: txt, url: `https://news.ycombinator.com/item?id=${c.id}`, apply: `https://news.ycombinator.com/item?id=${c.id}`, posted: c.created_at }); } }
     return n; });
