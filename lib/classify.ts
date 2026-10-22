@@ -6,7 +6,7 @@ const APAC = /\b(apac|asia[- ]pacific|south asia)\b/i;
 const WORLD = /\b(anywhere|worldwide|global(ly)?|any location|all locations|work from anywhere)\b/i;
 const REGION_ONLY = /\b(us|usa|u\.s\.|united states|canada|north america|americas|emea|europe|eu|uk|united kingdom|germany|france|ireland|netherlands|spain|poland|latam|brazil|mexico|japan|australia|singapore|korea|israel|new york|san francisco|sf|seattle|london|toronto|berlin|paris)\b/i;
 const DESC_WORLD = /(work from anywhere|anywhere in the world|fully remote,? (worldwide|globally)|hire (globally|worldwide|from anywhere)|remote[- ]first.{0,40}(worldwide|any country)|open to candidates (globally|worldwide))/i;
-const DESC_US_ONLY = /(must (be|reside) (located |based )?in the (us|u\.s\.|united states)|us[- ]only|authorized to work in the (us|united states)|within the (us|united states)|us time ?zones? only)/i;
+const DESC_US_ONLY = /(must (be|reside) (located |based )?in the (us|u\.s\.|united states)|us[- ]only|authorized to work in the (us|united states)|within the (us|united states)|us time ?zones? only|(candidates|applicants|those|people) (residing|located|based|living) in the (us|u\.s\.|united states)\b)/i;
 
 const DESC_REGION_ONLY = /(available in the (emea|eu|europe|americas|us|north america|latam|uk) region only|(open|available) (only )?(to candidates )?(in|to) (the )?(emea|eu|europe|americas|us|north america|latam|uk)( region)? only)/i;
 // WWR feeds tag big-company posts "Anywhere in the World" but put the real job location in "Headquarters:", e.g. "Remote - United States", "Portugal - Remote".
