@@ -8,7 +8,16 @@ const strip = (h: string) => decode(h).replace(/<style[\s\S]*?<\/style>/g, "").r
 const slugify = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 70);
 interface Raw { id: string; title: string; location: string; remote: boolean; desc: string; html?: string; url: string; apply: string; posted?: string; dept?: string }
 
-async function get(url: string) { const r = await fetch(url, { signal: AbortSignal.timeout(30000) }); if (!r.ok) throw new Error(`${r.status}`); return r.json(); }
+// Retry transient network errors / 429 / 5xx (Oct 22: one "fetch failed" mid-pagination aborted Himalayas and dropped 17 jobs)
+async function get(url: string, tries = 3): Promise<any> {
+  for (let i = 1; ; i++) {
+    try { const r = await fetch(url, { signal: AbortSignal.timeout(30000) });
+      if (r.ok) return r.json();
+      if (i >= tries || (r.status < 500 && r.status !== 429)) throw new Error(`${r.status}`);
+    } catch (e: any) { if (i >= tries || /^4\d\d$/.test(e.message) && e.message !== "429") throw e; }
+    await new Promise((res) => setTimeout(res, 2000 * i));
+  }
+}
 
 async function pull(c: Company): Promise<Raw[]> {
   if (c.source === "greenhouse") {
@@ -74,9 +83,9 @@ async function main() {
   const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
   // Himalayas public API: entry-level, India-eligible remote jobs
-  await agg("himalayas", async () => { let n = 0;
+  await agg("himalayas", async () => { let n = 0, fails = 0;
     for (const sen of ["Entry-level", "Mid-level"]) for (let page = 1; page <= (sen === "Entry-level" ? 50 : 15); page++) {
-      const d = await get(`https://himalayas.app/jobs/api/search?country=IN&seniority=${sen}&page=${page}`); if (!d.jobs?.length) break;
+      let d: any; try { d = await get(`https://himalayas.app/jobs/api/search?country=IN&seniority=${sen}&page=${page}`); } catch (e: any) { console.log(`himalayas ${sen} p${page}: ERROR ${e.message} (skipped)`); if (++fails >= 4) throw e; continue; } if (!d.jobs?.length) break;
       for (const j of d.jobs) { n++; const restr: string[] = j.locationRestrictions || []; const loc = "Remote · " + (restr.length ? restr.join(", ") : "Worldwide");
         addAgg("himalayas", j.companyName, { id: j.guid.split("/").slice(-1)[0] + "-" + (j.companySlug || ""), title: j.title, location: loc, remote: true, desc: strip(j.description || ""), url: j.guid, apply: j.applicationLink, posted: new Date(j.pubDate * 1000).toISOString() },
           j.employmentType === "Intern" ? "intern" : sen === "Entry-level" ? "entry" : undefined); }
