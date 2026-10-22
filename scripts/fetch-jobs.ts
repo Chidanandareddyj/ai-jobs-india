@@ -63,6 +63,8 @@ async function main() {
   // Staffing / consultancy / contract-agency blocklist
   const STAFFING_CO = /(pradeepit|cloud counselage|mimidentalclinic|mimi dental|xperteez|productiv team|clanx|talent sam|ngo consulting|beyondsoft|marktine|lemon\.io|ishir|micro1|a\.team|askable|lexoga|taskus|srijan|vertex marketing group|^ready$|twikey|levelup labs|inovex|20four7va|kdci|staffing|recruit(ing|ment)|consult(ing|ancy|ants)|outsourc|talent (solutions|journey)|manpower|placement|\bhr (plus|solutions|services)\b|jobs for humanity|internshiphub|weekday)/i;
   const STAFFING_TEXT = /(unpaid (internship|position|role)|internship is unpaid|staffing (firm|agency|company)|consulting services|on behalf of (our|a) client|our client is|\bc2c\b|corp[- ]to[- ]corp|\bbench\b|w2 only|third[- ]party payroll|contract[- ]to[- ]hire via|we've partnered with an? [^.]{0,40}(startup|company) to find|task-based contract|help train next-generation ai|tasks? (that|for) (today's best |frontier )?ai (coding )?models|us\$[\d,]+ per task)/i;
+  // Teaching jobs dressed as engineering titles (Oct 22: Playto Labs "Robotics Engineer Fresher" = online robotics classes for kids aged 8-16)
+  const TEACHING_TEXT = /(conduct (live |online )?[\w& ]{0,40}classes|teach (arduino|coding|robotics|stem|kids|children|students)|students aged \d+)/i;
   let blocked = 0;
   const STRICT_ENG = /\b(engineer|engineering|developer|sde|swe|programmer|(data|ml|research|applied) scientist|devops|sre|full[- ]?stack|back[- ]?end|front[- ]?end)\b/i;
   const JUNK = /\b(salesforce|cpq|sap|servicenow|rater|translator|evaluator|transcriber|tutor|annotat\w*|participant|trainer|linguist\w*|talent hub|expression of interest|volunteer|unpaid|support engineer|systems support|network engineer\w*|sales engineer|product manager|recruit\w*|future position|content developer|independent)\b/i;
@@ -70,7 +72,7 @@ async function main() {
     if (STAFFING_CO.test(company) || STAFFING_TEXT.test(r.title + " " + r.desc.slice(0, 5000))) { blocked++; return false; }
     const k = classify(r.title, r.location, r.desc, r.remote, hint);
     if (!(k.remote && k.indiaEligible && k.engineering)) return false;
-    if (!STRICT_ENG.test(r.title) || JUNK.test(r.title)) return false;
+    if (!STRICT_ENG.test(r.title) || JUNK.test(r.title) || TEACHING_TEXT.test(r.desc.slice(0, 3000))) return false;
     if (!(k.ai || DEVTOOLS.test(r.title + " " + r.desc.slice(0, 3000)))) return false;
     if (!["intern", "fresher", "junior"].includes(k.level) && !k.ai) return false; // non-entry aggregator roles must be AI roles
     const norm = (x: string) => x.toLowerCase().replace(/\b(gmbh|inc|ltd|llc|pvt|private|limited)\b/g, "").replace(/[^a-z0-9]/g, ""); const key = norm(company) + "|" + norm(r.title);
