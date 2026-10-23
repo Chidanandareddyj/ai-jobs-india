@@ -46,6 +46,10 @@ export function classify(title: string, location: string, desc: string, remoteFl
   if (indiaEligible && DESC_REGION_ONLY.test(desc)) { indiaEligible = false; indiaReason = "description restricts region"; }
   if (indiaEligible && /\b(amer|americas|emea|us|usa|u\.s\.|north america|europe|eu|latam|uk)\b/i.test(title) && !/\b(apac|asia|india|global)\b/i.test(title)) { indiaEligible = false; indiaReason = "title restricts region"; }
   if (indiaEligible && !INDIA.test(loc + " " + title) && /\b(singapore|australia|japan|korea|china|indonesia|philippines|vietnam|new zealand|sweden|germany|brazil|canada|mexico)\b/i.test(title)) { indiaEligible = false; indiaReason = "title names another country"; }
+  // Country codes in titles, e.g. Supabase "Customer Solution Architect (AU, NZ, SG)" (Oct 23)
+  if (indiaEligible && !INDIA.test(loc + " " + title) && /\b(AU|AUS|ANZ|NZ|SG|JP|KR|HK)\b/.test(title)) { indiaEligible = false; indiaReason = "title names another country"; }
+  // "APAC" roles pinned to a non-India APAC city, e.g. Fivetran "Remote, Australia, APAC · AUS - Sydney" (Oct 23)
+  if (indiaEligible && indiaReason === "location lists APAC/Asia" && /\b(australia|aus|sydney|melbourne|new zealand|auckland|japan|tokyo|singapore|korea|seoul|hong kong)\b/i.test(loc)) { indiaEligible = false; indiaReason = "APAC role based in another country"; }
   const t = title.toLowerCase();
   let level: Level = "mid";
   if (/\bintern(ship)?s?\b|\bco-?op\b|apprentice|trainee/.test(t)) level = "intern";
