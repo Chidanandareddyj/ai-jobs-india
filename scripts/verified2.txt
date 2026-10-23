@@ -73,3 +73,4 @@ smartrecruiters unacademy 3
 smartrecruiters unleash 1
 smartrecruiters whatfix 1
 workable crewai 6
+zyte (workable) verified 2026-10-23: apply.workable.com/zyte returns live postings incl. AI Tooling Engineer - Remote (India)
