@@ -50,6 +50,9 @@ export function classify(title: string, location: string, desc: string, remoteFl
   if (indiaEligible && !INDIA.test(loc + " " + title) && /\b(AU|AUS|ANZ|NZ|SG|JP|KR|HK)\b/.test(title)) { indiaEligible = false; indiaReason = "title names another country"; }
   // "APAC" roles pinned to a non-India APAC city, e.g. Fivetran "Remote, Australia, APAC · AUS - Sydney" (Oct 23)
   if (indiaEligible && indiaReason === "location lists APAC/Asia" && /\b(australia|aus|sydney|melbourne|new zealand|auckland|japan|tokyo|singapore|korea|seoul|hong kong)\b/i.test(loc)) { indiaEligible = false; indiaReason = "APAC role based in another country"; }
+  // Language-locked roles, e.g. Supabase "Database Support Engineer (Japanese Speaking)": "Must be a fluent bilingual Japanese/English speaker" (Oct 23)
+  const LANG = "(japanese|korean|mandarin|cantonese|german|french|spanish|portuguese|italian|dutch|arabic|turkish)";
+  if (indiaEligible && (new RegExp(`\\b${LANG}[- ]speak(ing|er)\\b`, "i").test(title) || new RegExp(`(must|required|requires)[^.]{0,30}(fluent|native|bilingual)[^.]{0,30}\\b${LANG}\\b`, "i").test(desc.slice(0, 6000)))) { indiaEligible = false; indiaReason = "requires a non-English language"; }
   const t = title.toLowerCase();
   let level: Level = "mid";
   if (/\bintern(ship)?s?\b|\bco-?op\b|apprentice|trainee/.test(t)) level = "intern";
