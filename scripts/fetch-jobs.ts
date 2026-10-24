@@ -1,4 +1,4 @@
-import { writeFileSync, mkdirSync } from "node:fs";
+import { writeFileSync, mkdirSync, readFileSync } from "node:fs";
 import { COMPANIES, Company } from "./companies";
 import { classify } from "../lib/classify";
 import type { Job } from "../lib/types";
@@ -89,13 +89,25 @@ async function main() {
   const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
   // Himalayas public API: entry-level, India-eligible remote jobs
+  const addH = (j: any, sen?: string) => { const restr: string[] = j.locationRestrictions || []; const loc = "Remote · " + (restr.length ? restr.join(", ") : "Worldwide");
+    return addAgg("himalayas", j.companyName, { id: j.guid.split("/").slice(-1)[0] + "-" + (j.companySlug || ""), title: j.title, location: loc, remote: true, desc: strip(j.description || ""), url: j.guid, apply: j.applicationLink, posted: new Date(j.pubDate * 1000).toISOString() },
+      j.employmentType === "Intern" ? "intern" : (sen ?? (j.seniority || [])[0]) === "Entry-level" ? "entry" : undefined); };
   await agg("himalayas", async () => { let n = 0, fails = 0;
     for (const sen of ["Entry-level", "Mid-level"]) for (let page = 1; page <= (sen === "Entry-level" ? 50 : 15); page++) {
       let d: any; try { d = await get(`https://himalayas.app/jobs/api/search?country=IN&seniority=${sen}&page=${page}`); } catch (e: any) { console.log(`himalayas ${sen} p${page}: ERROR ${e.message} (skipped)`); if (++fails >= 4) throw e; continue; } if (!d.jobs?.length) break;
-      for (const j of d.jobs) { n++; const restr: string[] = j.locationRestrictions || []; const loc = "Remote · " + (restr.length ? restr.join(", ") : "Worldwide");
-        addAgg("himalayas", j.companyName, { id: j.guid.split("/").slice(-1)[0] + "-" + (j.companySlug || ""), title: j.title, location: loc, remote: true, desc: strip(j.description || ""), url: j.guid, apply: j.applicationLink, posted: new Date(j.pubDate * 1000).toISOString() },
-          j.employmentType === "Intern" ? "intern" : sen === "Entry-level" ? "entry" : undefined); }
+      for (const j of d.jobs) { n++; addH(j, sen); }
       await sleep(400); }
+    // Search pages are cached snapshots of different ages, so a live job can fall between pages on any run
+    // (Oct 24: 14 live roles incl. Writesonic, Synthlane vanished). Recheck last run's missing Himalayas jobs per company.
+    const seen = new Set(jobs.filter((j) => j.source === "himalayas").map((j) => j.id));
+    let prev: any[] = []; try { prev = JSON.parse(readFileSync("data/jobs.json", "utf8")).jobs || []; } catch {}
+    const missing = prev.filter((j) => j.source === "himalayas" && !seen.has(j.id) && Date.now() - Date.parse(j.postedAt) < 30 * 864e5);
+    let recovered = 0;
+    for (const co of [...new Set(missing.map((j) => j.company as string))]) {
+      let d: any; try { d = await get(`https://himalayas.app/jobs/api/search?country=IN&q=${encodeURIComponent(co)}`); } catch { continue; }
+      for (const x of d.jobs || []) if (missing.some((m) => m.url === x.guid) && addH(x)) recovered++;
+      await sleep(400); }
+    console.log(`himalayas recheck: ${missing.length} missing from last run, ${recovered} still live and restored`);
     return n; });
 
   // Remotive public API
