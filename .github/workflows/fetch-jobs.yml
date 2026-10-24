@@ -33,4 +33,10 @@ jobs:
           git add data/jobs.json logs/
           if git diff --cached --quiet; then echo "No changes"; exit 0; fi
           git commit -m "Daily job fetch $(date -u +%Y-%m-%dT%H:%MZ)"
-          git push
+          # Someone may push code while the fetch runs (Oct 24: run 40063494053 was rejected "fetch first").
+          # Rebase onto the latest main and retry; only data/ and logs/ change here, so conflicts are unlikely.
+          for i in 1 2 3; do
+            git pull --rebase origin main && git push && exit 0
+            echo "push attempt $i failed, retrying"; sleep 5
+          done
+          exit 1
