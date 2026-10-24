@@ -129,6 +129,20 @@ async function main() {
     return n; });
 
   console.log(`staffing/consultancy blocklist removed: ${blocked}`);
+  // Collapse duplicate postings of one role: same company + same title once a trailing "(...)" is dropped
+  // (a plain title plus a "(...)" variant: Oscilar "Web SDK" vs "Web SDK (Brazil/Canada/UK/Poland/India)"), or same title + same location (Cloudflare reposts).
+  // Keep the posting that names India in its location.
+  { const base = (t: string) => t.toLowerCase().replace(/\s*\([^)]*\)\s*$/, "").replace(/[^a-z0-9]+/g, " ").trim();
+    const groups = new Map<string, Job[]>();
+    for (const j of jobs) { const k = j.companySlug + "|" + base(j.title); groups.set(k, [...(groups.get(k) || []), j]); }
+    const drop = new Set<Job>();
+    for (const g of groups.values()) { if (g.length < 2) continue;
+      const variants = new Set(g.map((j) => j.title.trim().toLowerCase())).size > 1;
+      const norm = (t: string) => t.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+      if (variants) { if (!g.some((j) => norm(j.title) === base(j.title))) continue; // "(Computer Vision)" vs "(Biometrics)" are different roles
+        const keep = g.find((j) => /india/i.test(j.location)) || g[0]; g.forEach((j) => j !== keep && drop.add(j)); }
+      else { const seen = new Set<string>(); for (const j of g) { const lk = j.location.toLowerCase(); if (seen.has(lk)) drop.add(j); else seen.add(lk); } } }
+    if (drop.size) { console.log(`duplicate postings collapsed: ${drop.size}`); for (let i = jobs.length - 1; i >= 0; i--) if (drop.has(jobs[i])) jobs.splice(i, 1); } }
   jobs.sort((a, b) => (b.postedAt || "").localeCompare(a.postedAt || ""));
   mkdirSync("data", { recursive: true });
   writeFileSync("data/jobs.json", JSON.stringify({ fetchedAt: now, companiesScanned: COMPANIES.length, stats, jobs }, null, 0));
