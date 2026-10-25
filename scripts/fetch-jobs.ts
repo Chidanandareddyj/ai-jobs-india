@@ -101,7 +101,8 @@ async function main() {
     // (Oct 24: 14 live roles incl. Writesonic, Synthlane vanished). Recheck last run's missing Himalayas jobs per company.
     const seen = new Set(jobs.filter((j) => j.source === "himalayas").map((j) => j.id));
     let prev: any[] = []; try { prev = JSON.parse(readFileSync("data/jobs.json", "utf8")).jobs || []; } catch {}
-    const missing = prev.filter((j) => j.source === "himalayas" && !seen.has(j.id) && Date.now() - Date.parse(j.postedAt) < 30 * 864e5);
+    // Himalayas listings stay up 60 days (expiryDate = pubDate + 60d); a 30-day cap dropped live Sun King SDE I (posted Sep 13) on Oct 25.
+    const missing = prev.filter((j) => j.source === "himalayas" && !seen.has(j.id) && Date.now() - Date.parse(j.postedAt) < 60 * 864e5);
     let recovered = 0;
     for (const co of [...new Set(missing.map((j) => j.company as string))]) {
       let d: any; try { d = await get(`https://himalayas.app/jobs/api/search?country=IN&q=${encodeURIComponent(co)}`); } catch { continue; }
