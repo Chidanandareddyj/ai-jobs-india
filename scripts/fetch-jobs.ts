@@ -154,7 +154,10 @@ async function main() {
       const norm = (t: string) => t.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
       if (variants) { if (!g.some((j) => norm(j.title) === base(j.title))) continue; // "(Computer Vision)" vs "(Biometrics)" are different roles
         const keep = g.find((j) => /india/i.test(j.location)) || g[0]; g.forEach((j) => j !== keep && drop.add(j)); }
-      else { const seen = new Set<string>(); for (const j of g) { const lk = j.location.toLowerCase(); if (seen.has(lk)) drop.add(j); else seen.add(lk); } } }
+      else { // Keep the same copy every run (newest post, then highest id) so the job URL doesn't flip between reposts
+        // (Oct 25-26: Cloudflare "Software Engineer, AI Agents" alternated between ids 7831810 and 8259402, 404ing the old slug).
+        g.sort((a, b) => (b.postedAt || "").localeCompare(a.postedAt || "") || b.id.localeCompare(a.id, undefined, { numeric: true }));
+        const seen = new Set<string>(); for (const j of g) { const lk = j.location.toLowerCase(); if (seen.has(lk)) drop.add(j); else seen.add(lk); } } }
     if (drop.size) { console.log(`duplicate postings collapsed: ${drop.size}`); for (let i = jobs.length - 1; i >= 0; i--) if (drop.has(jobs[i])) jobs.splice(i, 1); } }
   jobs.sort((a, b) => (b.postedAt || "").localeCompare(a.postedAt || ""));
   mkdirSync("data", { recursive: true });
