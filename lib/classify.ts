@@ -16,7 +16,7 @@ const DESC_TZ_WINDOW = /(locat\w*|based|reside\w*|liv\w*)[^.]{0,40}between\s*(?:
 const DESC_SENIOR_EXP = /\b([4-9]|1\d)\+\s*(years|yrs)\s*(of\s*)?(production|professional|industry|relevant|hands-on|work|experience)/i;
 
 export const ENG_TITLE = /\b(engineer|engineering|developer|programmer|scientist|sre|devops|ml|ai|machine learning|research(er)?|architect|sdet|full[- ]?stack|back[- ]?end|front[- ]?end|infrastructure|platform|security engineer|data engineer|forward deployed|solutions engineer|developer advocate|devrel|intern)\b/i;
-const NON_ENG = /\b(recruit|sales|account executive|marketing|legal|counsel|finance|accountant|hr|people partner|office|executive assistant|designer|customer success manager|payroll|tax|accounting|gtm ai operations|revenue operations|revops|content (&|and) generative search|content marketing|paralegal|business development|director|vp|vice president|head of)\b/i;
+const NON_ENG = /\b(recruit|sales|account executive|marketing|legal|counsel|finance|accountant|hr|people partner|office|executive assistant|designer|customer success manager|payroll|tax|accounting|gtm ai operations|technical account manager|revenue operations|revops|content (&|and) generative search|content marketing|paralegal|business development|director|vp|vice president|head of)\b/i;
 const AI = /\b(ai|a\.i\.|llm|llms|machine learning|ml|deep learning|nlp|genai|generative|agent|agents|agentic|rag|inference|model training|pytorch|tensorflow|transformers?|computer vision|evals?|embeddings?|fine[- ]tun)/i;
 
 const STACK: [string, RegExp][] = [
