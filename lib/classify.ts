@@ -8,7 +8,8 @@ const REGION_ONLY = /\b(us|usa|u\.s\.|united states|canada|north america|america
 const DESC_WORLD = /(work from anywhere|anywhere in the world|fully remote,? (worldwide|globally)|hire (globally|worldwide|from anywhere)|remote[- ]first.{0,40}(worldwide|any country)|open to candidates (globally|worldwide))/i;
 const DESC_US_ONLY = /(must (be|reside) (located |based )?in the (us|u\.s\.|united states)|us[- ]only|authorized to work in the (us|united states)|within the (us|united states)|us time ?zones? only|(candidates|applicants|those|people) (residing|located|based|living) in the (us|u\.s\.|united states)\b)/i;
 
-const DESC_REGION_ONLY = /(location:\s*latam|team time ?zone:\s*latam|latam,? 100% remote|remote from latam|(based|located|living|reside) in latin america|available in the (emea|eu|europe|americas|us|north america|latam|uk) region only|(open|available) (only )?(to candidates )?(in|to) (the )?(emea|eu|europe|americas|us|north america|latam|uk)( region)? only)/i;
+// CovertSwarm AI Engineer on Himalayas says Worldwide but the post reads "remote role open to candidates based in EU" (Oct 26)
+const DESC_REGION_ONLY = /(location:\s*latam|team time ?zone:\s*latam|latam,? 100% remote|remote from latam|(based|located|living|reside) in latin america|available in the (emea|eu|europe|americas|us|north america|latam|uk) region only|(open|available) (only )?(to candidates )?(in|to) (the )?(emea|eu|europe|americas|us|north america|latam|uk)( region)? only|open (only )?to (candidates|applicants|people) (based|located|living|residing) in (the )?(emea|eu|europe|uk|united kingdom|us|usa|united states|canada|north america|americas|latam)\b)/i;
 // WWR feeds tag big-company posts "Anywhere in the World" but put the real job location in "Headquarters:", e.g. "Remote - United States", "Portugal - Remote".
 const WWR_HQ_REMOTE = /^\s*Headquarters:\s*([^\n]*)/i;
 // "main location is between UTC-4 and UTC+4": India (UTC+5:30) is outside the window.
