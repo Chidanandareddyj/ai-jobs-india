@@ -71,11 +71,13 @@ async function main() {
   let blocked = 0;
   const STRICT_ENG = /\b(engineer|engineering|developer|sde|swe|programmer|(data|ml|research|applied) scientist|devops|sre|full[- ]?stack|back[- ]?end|front[- ]?end)\b/i;
   const JUNK = /\b(salesforce|cpq|sap|servicenow|rater|translator|evaluator|transcriber|tutor|annotat\w*|participant|trainer|linguist\w*|talent hub|expression of interest|volunteer|unpaid|support engineer|systems support|network engineer\w*|sales engineer|product manager|recruit\w*|future position|content developer|independent|talent pool)\b/i;
+  const CAMPUS_ONLY = /^\s*(iit|iiit|nit|bits|vit|iisc)\b[^-–—|]{0,40}[-–—|]/i;
   const addAgg = (source: string, company: string, r: Raw, hint?: "intern" | "entry") => {
     if (NOT_INDIA_CO.test(company.trim())) return false;
     if (STAFFING_CO.test(company) || STAFFING_TEXT.test(r.title + " " + r.desc.slice(0, 5000))) { blocked++; return false; }
     const k = classify(r.title, r.location, r.desc, r.remote, hint);
     if (!(k.remote && k.indiaEligible && k.engineering)) return false;
+    if (CAMPUS_ONLY.test(r.title)) return false; // campus-only hiring (e.g. Atlassian "BITS Pilani - SWE Intern") is closed to everyone else
     if (!STRICT_ENG.test(r.title) || JUNK.test(r.title) || TEACHING_TEXT.test(r.desc.slice(0, 3000))) return false;
     if (!(k.ai || DEVTOOLS.test(r.title + " " + r.desc.slice(0, 3000)))) return false;
     if (!["intern", "fresher", "junior"].includes(k.level) && !k.ai) return false; // non-entry aggregator roles must be AI roles
