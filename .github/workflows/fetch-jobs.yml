@@ -40,3 +40,7 @@ jobs:
             echo "push attempt $i failed, retrying"; sleep 5
           done
           exit 1
+      - name: Keep Supabase awake (free projects pause after ~7 idle days)
+        if: always()
+        continue-on-error: true
+        run: curl -fsS --max-time 30 https://ai-jobs-india.vercel.app/api/keepalive || echo "keepalive ping failed"
