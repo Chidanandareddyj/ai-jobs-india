@@ -70,7 +70,7 @@ async function main() {
   const NOT_INDIA_CO = /^(deeter analytics)$/i;
   let blocked = 0;
   const STRICT_ENG = /\b(engineer|engineering|developer|sde|swe|programmer|(data|ml|research|applied) scientist|devops|sre|full[- ]?stack|back[- ]?end|front[- ]?end)\b/i;
-  const JUNK = /\b(salesforce|cpq|sap|servicenow|rater|translator|evaluator|transcriber|tutor|annotat\w*|participant|trainer|linguist\w*|talent hub|expression of interest|volunteer|unpaid|support engineer|systems support|network engineer\w*|sales engineer|compliance engineer\w*|product manager|recruit\w*|future position|content developer|independent|talent pool)\b/i;
+  const JUNK = /\b(salesforce|cpq|sap|servicenow|rater|translator|evaluator|transcriber|tutor|annotat\w*|participant|trainer|linguist\w*|talent hub|expression of interest|volunteer|unpaid|support engineer|systems support|network engineer\w*|sales engineer|compliance engineer\w*|supplier quality|product manager|recruit\w*|future position|content developer|independent|talent pool)\b/i;
   const CAMPUS_ONLY = /^\s*(iit|iiit|nit|bits|vit|iisc)\b[^-–—|]{0,40}[-–—|]/i;
   const addAgg = (source: string, company: string, r: Raw, hint?: "intern" | "entry") => {
     if (NOT_INDIA_CO.test(company.trim())) return false;
